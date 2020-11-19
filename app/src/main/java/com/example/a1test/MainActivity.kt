@@ -44,36 +44,6 @@ class MainActivity : AppCompatActivity() {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-        // Register for broadcasts when a device is discovered для сканирования
-
-
-        button0.setOnClickListener {
-            var checkPerm = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
-            if (checkPerm == 0){
-                Log.i("device", "PERMISSION_GRANTED")
-            } else {
-                Log.i("device", "PERMISSION_DENIED")
-            }
-//            requestPermissions()
-        }
-
-//        LogLoopFor.setOnClickListener {
-//            val size = list.size
-//            Log.i("Loop", "LIST" + "        " + size)
-//            outerLoop@ for (index in list.indices){
-//                for (index2 in list.indices){
-//                    if (list[index] !== list[index2]){
-//                        Log.i("Loop", list[index])
-//                    }
-//                }
-//            }
-//            //unregisterReceiver(receiver)
-//            //bluetoothAdapter.startDiscovery()
-//        }
-
-        button2.setOnClickListener{
-            bluetoothAdapter.cancelDiscovery()
-        }
 
         button1.setOnClickListener{
         discoverUnpaired()
@@ -98,6 +68,7 @@ class MainActivity : AppCompatActivity() {
                         }else{
                             //list2.plusAssign(device.name+"\n"+device.address)
                             list2.add(device)
+                            //list2.subList()
                         }
                     }
                     //list += (device.name+"\n"+device.address)
@@ -119,24 +90,7 @@ class MainActivity : AppCompatActivity() {
         //TimeUnit.SECONDS.sleep(10)
         toControlActivity()
     }
-
-    private fun pairedDeviceList() {
-        pairedDevices = bluetoothAdapter.bondedDevices
-        val list: ArrayList<BluetoothDevice> = ArrayList()
-
-        if (pairedDevices.isNotEmpty()) {
-            for (device: BluetoothDevice in pairedDevices) {
-                list.add(device)
-                Log.i("device", "" + device.name + "  " + device)
-            }
-        } else {
-            Toast.makeText(this, "No pared bluetooth devices found", Toast.LENGTH_SHORT).show()
-        }
-
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
-        select_device_list.adapter = adapter
-    }
-
+    
     private fun toControlActivity(){
         select_device_list.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
@@ -149,24 +103,4 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-//    private fun getPairedDeviceList() { //Функция получения списка спаренных устройств
-//        pairedDevices = bluetoothAdapter.bondedDevices //Получение набора спаренных устройств
-//        for (check in pairedDevices){ //Цикл вывода в Logcat спаренных устройств
-//            //Функция вывода в лог спаренных устройств
-//            //tag это метка по которой можно найти сообщение в логе
-//            // в msg вводится то, что нужно вывести
-//            Log.i("device", check.name+"\n"+" Адрес" + check.address + " Состояние бонд" + check.bondState)
-//        }
-//        Log.i("device", "Размер массива" + pairedDevices.size)
-//        val list = ArrayList<String>()
-//        for (device:BluetoothDevice in pairedDevices){ //Заполнение ListVIew набором спаренных устройств
-//            //Функция добавления в листвью имени устровства
-//            //Адреса устроства
-//            //Запись "\n" - переход на следующу строку
-//            list.add(device.name+"\n"+device.address)
-//            //TimeUnit.SECONDS.sleep(1)
-//        }
-//    val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
-//    select_device_list.adapter = adapter
-//    }
 }
