@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">1Test</string>
+    <string name="button5">StartDiscovery</string>
+    <string name="button2">CancelDiscovery</string>
+    <string name="button1">Get</string>
+    <string name="button6">fds</string>
+</resources>
