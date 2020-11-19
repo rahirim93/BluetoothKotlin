@@ -120,18 +120,6 @@ class MainActivity : AppCompatActivity() {
         toControlActivity()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        ...
-
-        // Don't forget to unregister the ACTION_FOUND receiver.
-        //unregisterReceiver(receiver)
-
-
     private fun pairedDeviceList() {
         pairedDevices = bluetoothAdapter.bondedDevices
         val list: ArrayList<BluetoothDevice> = ArrayList()
