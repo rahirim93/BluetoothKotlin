@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pairedDevices: Set<BluetoothDevice>
 
     //Массивы для поиска устройств
-    val list = ArrayList<String>()
-    var list2 = ArrayList<String>()
+    val list = ArrayList<BluetoothDevice>()
+    var list2 = ArrayList<BluetoothDevice>()
 
 
     companion object {
@@ -57,19 +57,19 @@ class MainActivity : AppCompatActivity() {
 //            requestPermissions()
         }
 
-        LogLoopFor.setOnClickListener {
-            val size = list.size
-            Log.i("Loop", "LIST" + "        " + size)
-            outerLoop@ for (index in list.indices){
-                for (index2 in list.indices){
-                    if (list[index] !== list[index2]){
-                        Log.i("Loop", list[index])
-                    }
-                }
-            }
-            //unregisterReceiver(receiver)
-            //bluetoothAdapter.startDiscovery()
-        }
+//        LogLoopFor.setOnClickListener {
+//            val size = list.size
+//            Log.i("Loop", "LIST" + "        " + size)
+//            outerLoop@ for (index in list.indices){
+//                for (index2 in list.indices){
+//                    if (list[index] !== list[index2]){
+//                        Log.i("Loop", list[index])
+//                    }
+//                }
+//            }
+//            //unregisterReceiver(receiver)
+//            //bluetoothAdapter.startDiscovery()
+//        }
 
         button2.setOnClickListener{
             bluetoothAdapter.cancelDiscovery()
@@ -87,17 +87,17 @@ class MainActivity : AppCompatActivity() {
                 BluetoothDevice.ACTION_FOUND -> {
                     Log.i("bukh", action)
                     val device: BluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    var deviceName = device.name
-                    var deviceAddress = device.address
-                    var checkContain: Boolean = false
+                    var checkContain: Boolean
                     Log.i("bukh", device.name + " " + device.address)
-                    list += (device.name+"\n"+device.address )
+                    list += device
+                    //list += (device.name+"\n"+device.address )
                     for (element in list){
                         checkContain = list2.contains(element)
                         if (checkContain){
 
                         }else{
-                            list2.plusAssign(device.name+"\n"+device.address)
+                            //list2.plusAssign(device.name+"\n"+device.address)
+                            list2.add(device)
                         }
                     }
                     //list += (device.name+"\n"+device.address)
@@ -110,11 +110,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun discoverUnpaired (){
+        //select_device_list
+//        val list = ArrayList<String>()
+//        var list2 = ArrayList<String>()
         bluetoothAdapter.startDiscovery()
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(receiver, filter)
-        TimeUnit.SECONDS.sleep(10)
-        //toControlActivity()
+        //TimeUnit.SECONDS.sleep(10)
+        toControlActivity()
     }
 
     override fun onDestroy() {
@@ -146,17 +149,17 @@ class MainActivity : AppCompatActivity() {
         select_device_list.adapter = adapter
     }
 
-//    fun toControlActivity(){
-//        select_device_list.onItemClickListener =
-//            AdapterView.OnItemClickListener { _, _, position, _ ->
-//                val device: BluetoothDevice = list2[position]
-//                val address: String = device.address
-//
-//                val intent = Intent(this, ControlActivity::class.java)
-//                intent.putExtra(EXTRA_ADDRESS, address)
-//                startActivity(intent)
-//            }
-//    }
+    private fun toControlActivity(){
+        select_device_list.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                val device: BluetoothDevice = list2[position]
+                val address: String = device.address
+
+                val intent = Intent(this, ControlActivity::class.java)
+                intent.putExtra(EXTRA_ADDRESS, address)
+                startActivity(intent)
+            }
+    }
 
 //    private fun getPairedDeviceList() { //Функция получения списка спаренных устройств
 //        pairedDevices = bluetoothAdapter.bondedDevices //Получение набора спаренных устройств
