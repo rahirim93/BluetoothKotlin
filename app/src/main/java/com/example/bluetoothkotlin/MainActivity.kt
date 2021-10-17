@@ -3,24 +3,33 @@ package com.example.bluetoothkotlin
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import java.io.IOException
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-
+    // TextView для отображения принятого сообщения
+    private lateinit var textView: TextView
+    // Handler для передачи сообщений между потоками
+    private lateinit var handler: Handler
+    // Кнопка соединения
+    private lateinit var buttonConnect: Button
+    // Инициализация втроенного Bluetooth устройства
+    private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    // Искомый, заранее известные, адрес устройства
     val bluetoothAddress = "98:D3:31:F9:8D:32"
-
+    //Переменная для хранения найденного устройства
     private lateinit var myDevice: BluetoothDevice
     var founded = false
 
@@ -30,11 +39,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        init()
+
         //Запрос разрешений
         requestPermissions()
 
         //Регистрация ресивера
         registerMyReceiver()
+    }
+
+    private fun init() {
+        textView = findViewById(R.id.textView)
+
+        buttonConnect = findViewById(R.id.buttonConnect)
+        buttonConnect.isEnabled = false // Блокировка кпопки
+
+        //Handler
+        handler = object: Handler(Looper.myLooper()!!){
+            override fun handleMessage(msg: Message) {
+                textView.text = "Сообщение: ${msg.obj.toString()}"
+            }
+        }
     }
 
     private fun requestPermissions() {
@@ -66,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                         if (device != null) {
                             myDevice = device
                             founded = true
+                            buttonConnect.isEnabled = true //Если найдено искомое устройство - разблокировать устройство
                             Toast.makeText(context, "Устройство найдено", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -73,38 +99,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    }
-
-    //Класс соединения блютуз
-    private inner class ConnectThread(device: BluetoothDevice) : Thread() {
-        val myUUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-
-        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            device.createRfcommSocketToServiceRecord(myUUID)
-        }
-
-        override fun run() {
-            // Cancel discovery because it otherwise slows down the connection.
-            bluetoothAdapter?.cancelDiscovery()
-
-            mmSocket?.let { socket ->
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
-                socket.connect()
-
-                // The connection attempt succeeded. Perform work associated with
-                // the connection in a separate thread.
-                //manageMyConnectedSocket(socket)
-            }
-        }
-
-        // Closes the client socket and causes the thread to finish.
-        fun cancel() {
-            try {
-                mmSocket?.close()
-            } catch (e: IOException) {
-            }
-        }
     }
 
     //Кнопка начала поиска устройств
@@ -118,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     fun connect(view: android.view.View) {
         //Создать поток соединения и запускить
         if (myDevice != null) {
-            connectionThread = ConnectThread(myDevice)
+            connectionThread = ConnectThread(myDevice, handler)
             connectionThread.start()
             Toast.makeText(this, "Попытка соединения", Toast.LENGTH_SHORT).show()
         } else {
