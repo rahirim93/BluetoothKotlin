@@ -5,10 +5,12 @@ import android.os.Handler
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.lang.StringBuilder
 
     class ConnectedThread (mmSocket: BluetoothSocket?, myHandler: Handler) : Thread() {
         private val mmInStream: InputStream? = mmSocket?.inputStream
+        private val mmOutStream: OutputStream? = mmSocket?.outputStream
         private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
         private var handler = myHandler
 
@@ -37,6 +39,14 @@ import java.lang.StringBuilder
                     Log.d("MyLog", "Input stream was disconnected", e)
                     break
                 }
+            }
+        }
+
+        fun write(bytes: ByteArray) {
+            try {
+                mmOutStream?.write(bytes)
+            } catch (e: Exception) {
+
             }
         }
     }

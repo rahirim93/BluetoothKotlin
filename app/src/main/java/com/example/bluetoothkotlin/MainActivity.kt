@@ -1,6 +1,7 @@
 package com.example.bluetoothkotlin
 
 import android.Manifest
+import android.app.TimePickerDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
@@ -16,11 +17,22 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
-
+    // Переменная для хранения соединенного потока
+    private lateinit var connectedThread: ConnectedThread
+    // Переменная для хранения времени будильника
+    private lateinit var alarmTimeCalendar: Calendar
     // TextView для отображения принятого сообщения
     private lateinit var textView: TextView
+    // TextView для выбранного времени
+    private lateinit var textView2: TextView
     // Handler для передачи сообщений между потоками
     private lateinit var handler: Handler
     // Кнопка соединения
@@ -50,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun init() {
         textView = findViewById(R.id.textView)
+        textView2 = findViewById(R.id.textView2)
 
         buttonConnect = findViewById(R.id.buttonConnect)
         buttonConnect.isEnabled = false // Блокировка кпопки
@@ -57,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         //Handler
         handler = object: Handler(Looper.myLooper()!!){
             override fun handleMessage(msg: Message) {
-                textView.text = "Сообщение: ${msg.obj.toString()}"
+                textView.text = "Текущее время на ардуино: ${msg.obj}"
             }
         }
     }
@@ -124,5 +137,22 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         //Отказ от регистрации приемника при закрытии приложения
         unregisterReceiver(receiver)
+    }
+
+    fun timePickerCall(view: android.view.View) {
+        alarmTimeCalendar = Calendar.getInstance()
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+            alarmTimeCalendar.set(Calendar.HOUR_OF_DAY, hour)
+            alarmTimeCalendar.set(Calendar.MINUTE, minute)
+            textView2.text = SimpleDateFormat("HH:mm").format(alarmTimeCalendar.time)
+        }
+        val time = TimePickerDialog(this, timeSetListener, alarmTimeCalendar.get(Calendar.HOUR_OF_DAY), alarmTimeCalendar.get(
+            Calendar.MINUTE), true)
+        time.setTitle("")
+        time.show()
+    }
+
+    fun sendMessage(view: android.view.View) {
+
     }
 }

@@ -12,6 +12,7 @@ class ConnectThread (device: BluetoothDevice, handler: Handler) : Thread() {
     private val myUUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     var myHandler = handler
+    lateinit var connectedThread: ConnectedThread
     private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
         device.createRfcommSocketToServiceRecord(myUUID)
     }
